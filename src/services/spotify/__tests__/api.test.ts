@@ -4,7 +4,7 @@
  *
  * Ici on mocke deux choses :
  *  - getValidSession (le module ../auth) → on simule un utilisateur connecté,
- *  - global.fetch → on simule les réponses HTTP de api.spotify.com.
+ *  - globalThis.fetch → on simule les réponses HTTP de api.spotify.com.
  * Ça permet de vérifier que nos fonctions envoient les bonnes requêtes
  * (URL, méthode, headers) et transforment correctement les réponses.
  */
@@ -34,15 +34,15 @@ describe('api Spotify', () => {
       expiresAt: Date.now() + 3600_000,
       role: 'basic',
     });
-    global.fetch = jest.fn();
+    globalThis.fetch = jest.fn();
   });
 
   it('envoie le header Authorization: Bearer sur chaque requête', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(fakeResponse(200, { id: 'u1' }));
+    (globalThis.fetch as jest.Mock).mockResolvedValue(fakeResponse(200, { id: 'u1' }));
 
     await getMyProfile();
 
-    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
+    const [url, init] = (globalThis.fetch as jest.Mock).mock.calls[0];
     expect(url).toBe('https://api.spotify.com/v1/me');
     expect(init.headers.Authorization).toBe('Bearer token-abc');
   });
@@ -54,7 +54,7 @@ describe('api Spotify', () => {
   });
 
   it('mappe le profil Spotify vers notre type SpotifyProfile', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(
+    (globalThis.fetch as jest.Mock).mockResolvedValue(
       fakeResponse(200, {
         id: 'titouan',
         display_name: 'Titouan',
@@ -72,7 +72,7 @@ describe('api Spotify', () => {
   });
 
   it('gère un profil minimal (pas de photo, pas de display_name)', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(
+    (globalThis.fetch as jest.Mock).mockResolvedValue(
       fakeResponse(200, { id: 'anon', images: [] })
     );
 
@@ -85,7 +85,7 @@ describe('api Spotify', () => {
   });
 
   it('mappe les résultats de recherche (plusieurs artistes joints par ", ")', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(
+    (globalThis.fetch as jest.Mock).mockResolvedValue(
       fakeResponse(200, {
         tracks: {
           items: [
@@ -112,28 +112,28 @@ describe('api Spotify', () => {
       },
     ]);
     // Vérifie que la query est bien encodée dans l'URL.
-    const [url] = (global.fetch as jest.Mock).mock.calls[0];
+    const [url] = (globalThis.fetch as jest.Mock).mock.calls[0];
     expect(url).toContain('/search?q=nightcall&type=track&limit=10');
   });
 
   it('ne fait AUCUNE requête pour une recherche vide (économise le quota API)', async () => {
     expect(await searchTracks('   ')).toEqual([]);
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(globalThis.fetch).not.toHaveBeenCalled();
   });
 
   it('playTrack envoie un PUT /me/player/play avec l’URI du morceau', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(fakeResponse(204));
+    (globalThis.fetch as jest.Mock).mockResolvedValue(fakeResponse(204));
 
     await playTrack('spotify:track:xyz');
 
-    const [url, init] = (global.fetch as jest.Mock).mock.calls[0];
+    const [url, init] = (globalThis.fetch as jest.Mock).mock.calls[0];
     expect(url).toBe('https://api.spotify.com/v1/me/player/play');
     expect(init.method).toBe('PUT');
     expect(JSON.parse(init.body)).toEqual({ uris: ['spotify:track:xyz'] });
   });
 
   it('remonte le message d’erreur de Spotify (ex: 403 pas de Premium)', async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(
+    (globalThis.fetch as jest.Mock).mockResolvedValue(
       fakeResponse(403, { error: { status: 403, message: 'Player command failed: Premium required' } })
     );
 

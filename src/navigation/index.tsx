@@ -18,12 +18,15 @@ import { View, ActivityIndicator } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/LoginScreen';
 import HomeScreen from '../screens/HomeScreen';
+import LobbyScreen from '../screens/LobbyScreen';
 
-// Liste des écrans et de leurs paramètres (aucun pour l'instant).
-// TypeScript s'en servira pour vérifier nos appels navigation.navigate().
+// Liste des écrans et de leurs paramètres.
+// TypeScript s'en servira pour vérifier nos appels navigation.navigate() :
+// impossible d'ouvrir le Lobby sans lui passer un code de room, par exemple.
 export type RootStackParamList = {
   Login: undefined;
   Home: undefined;
+  Lobby: { code: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -45,7 +48,12 @@ export default function AppNavigator() {
     <NavigationContainer theme={DarkTheme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {profile ? (
-          <Stack.Screen name="Home" component={HomeScreen} />
+          <>
+            <Stack.Screen name="Home" component={HomeScreen} />
+            {/* gestureEnabled:false : on ne quitte pas une room d'un swipe
+                accidentel — il y a un bouton "Quitter" explicite pour ça. */}
+            <Stack.Screen name="Lobby" component={LobbyScreen} options={{ gestureEnabled: false }} />
+          </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} />
         )}

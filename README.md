@@ -78,7 +78,7 @@ Scanne le QR code avec **Expo Go** (Android) ou l'appareil photo (iOS).
 
 - [x] **Phase 0 — Setup** : projet Expo TS, structure de dossiers, config Spotify/Firebase
 - [x] **Phase 1 — Authentification** : OAuth PKCE (rôles `basic`/`host`), tokens en SecureStore, refresh silencieux, écran de profil + garde-fou "hôte non Premium"
-- [ ] Phase 2 — Rooms temps réel (créer/rejoindre, lobby)
+- [x] **Phase 2 — Rooms temps réel** : créer une room (code 5 caractères), rejoindre via code (erreurs : introuvable / pleine / déjà commencée), lobby synchronisé en direct via Firestore, démarrage réservé à l'hôte (min. 2 joueurs), fermeture de la room si l'hôte part
 - [ ] Phase 3 — Recherche & ajout de morceaux
 - [ ] Phase 4 — Lecture (Spotify Connect) & votes
 - [ ] Phase 5 — Reveal & scoring

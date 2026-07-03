@@ -31,6 +31,13 @@ export interface Room {
   currentRound: number | null;
   /** Nombre de morceaux que chaque joueur doit ajouter (1 ou 2). */
   tracksPerPlayer: number;
+  /**
+   * Nombre de joueurs présents. Dupliqué ici (en plus de la sous-collection
+   * players) car une transaction Firestore ne peut pas compter les documents
+   * d'une collection — on maintient donc ce compteur à chaque join/leave
+   * pour pouvoir vérifier "room pleine ?" de façon atomique.
+   */
+  playerCount: number;
   createdAt: number; // timestamp ms
 }
 
